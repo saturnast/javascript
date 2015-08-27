@@ -1,10 +1,15 @@
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/airbnb/javascript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
 # Airbnb JavaScript Style Guide() {
 
 *A mostly reasonable approach to JavaScript*
 
-[For the ES5-only guide click here](es5/).
+[![Downloads](https://img.shields.io/npm/dm/eslint-config-airbnb.svg)](https://www.npmjs.com/package/eslint-config-airbnb)
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/airbnb/javascript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+Other Style Guides
+ - [ES5](es5/)
+ - [React](react/)
+ - [CSS & Sass](https://github.com/airbnb/css)
+ - [Ruby](https://github.com/airbnb/ruby)
 
 ## Table of Contents
 
@@ -41,7 +46,7 @@
   1. [In the Wild](#in-the-wild)
   1. [Translation](#translation)
   1. [The JavaScript Style Guide Guide](#the-javascript-style-guide-guide)
-  1. [Chat With Us About Javascript](#chat-with-us-about-javascript)
+  1. [Chat With Us About JavaScript](#chat-with-us-about-javascript)
   1. [Contributors](#contributors)
   1. [License](#license)
 
@@ -254,7 +259,7 @@
     // bad
     const obj = {
       episodeOne: 1,
-      twoJedisWalkIntoACantina: 2,
+      twoJediWalkIntoACantina: 2,
       lukeSkywalker,
       episodeThree: 3,
       mayTheFourth: 4,
@@ -266,7 +271,7 @@
       lukeSkywalker,
       anakinSkywalker,
       episodeOne: 1,
-      twoJedisWalkIntoACantina: 2,
+      twoJediWalkIntoACantina: 2,
       episodeThree: 3,
       mayTheFourth: 4,
     };
@@ -290,7 +295,6 @@
 
     ```javascript
     const someStack = [];
-
 
     // bad
     someStack[someStack.length] = 'abracadabra';
@@ -403,7 +407,7 @@
     const name = 'Capt. Janeway';
     ```
 
-  - [6.2](#6.2) <a name='6.2'></a> Strings longer than 80 characters should be written across multiple lines using string concatenation.
+  - [6.2](#6.2) <a name='6.2'></a> Strings longer than 100 characters should be written across multiple lines using string concatenation.
   - [6.3](#6.3) <a name='6.3'></a> Note: If overused, long strings with concatenation could impact performance. [jsPerf](http://jsperf.com/ya-string-concat) & [Discussion](https://github.com/airbnb/javascript/issues/40).
 
     ```javascript
@@ -443,6 +447,7 @@
       return `How are you, ${name}?`;
     }
     ```
+  - [6.5](#6.5) <a name='6.5'></a> Never use eval() on a string, it opens too many vulnerabilities.
 
 **[⬆ back to top](#table-of-contents)**
 
@@ -567,6 +572,17 @@
   count();  // 3
   ```
 
+- [7.9](#7.9) <a name='7.9'></a> Never use the Function constructor to create a new function.
+
+  > Why? Creating a function in this way evaluates a string similarly to eval(), which opens vulnerabilities.
+
+  ```javascript
+  // bad
+  var add = new Function('a', 'b', 'return a + b');
+
+  // still bad
+  var subtract = Function('a', 'b', 'return a - b');
+  ```
 
 **[⬆ back to top](#table-of-contents)**
 
@@ -581,16 +597,18 @@
     ```javascript
     // bad
     [1, 2, 3].map(function (x) {
-      return x * x;
+      const y = x + 1;
+      return x * y;
     });
 
     // good
     [1, 2, 3].map((x) => {
-      return x * x;
+      const y = x + 1;
+      return x * y;
     });
     ```
 
-  - [8.2](#8.2) <a name='8.2'></a> If the function body fits on one line and there is only a single argument, feel free to omit the braces and parentheses, and use the implicit return. Otherwise, add the parentheses, braces, and use a `return` statement.
+  - [8.2](#8.2) <a name='8.2'></a> If the function body consists of a single expression, feel free to omit the braces and use the implicit return. Otherwise use a `return` statement.
 
   > Why? Syntactic sugar. It reads well when multiple functions are chained together.
 
@@ -598,12 +616,50 @@
 
     ```javascript
     // good
+    [1, 2, 3].map(number => `A string containing the ${number}.`);
+
+    // bad
+    [1, 2, 3].map(number => {
+      const nextNumber = number + 1;
+      `A string containing the ${nextNumber}.`;
+    });
+
+    // good
+    [1, 2, 3].map(number => {
+      const nextNumber = number + 1;
+      return `A string containing the ${nextNumber}.`;
+    });
+    ```
+
+  - [8.3](#8.3) <a name='8.3'></a> In case the expression spans over multiple lines, wrap it in parentheses for better readability.
+
+  > Why? It shows clearly where the function starts and ends.
+
+    ```js
+    // bad
+    [1, 2, 3].map(number => 'As time went by, the string containing the ' +
+      `${number} became much longer. So we needed to break it over multiple ` +
+      'lines.'
+    );
+
+    // good
+    [1, 2, 3].map(number => (
+      `As time went by, the string containing the ${number} became much ` +
+      'longer. So we needed to break it over multiple lines.'
+    ));
+    ```
+
+
+  - [8.4](#8.4) <a name='8.4'></a> If your function only takes a single argument, feel free to omit the parentheses.
+
+  > Why? Less visual clutter.
+
+    ```js
+    // good
     [1, 2, 3].map(x => x * x);
 
     // good
-    [1, 2, 3].reduce((total, n) => {
-      return total + n;
-    }, 0);
+    [1, 2, 3].reduce((y, x) => x + y);
     ```
 
 **[⬆ back to top](#table-of-contents)**
@@ -1213,8 +1269,10 @@
   - [17.4](#17.4) <a name='17.4'></a> Use `// FIXME:` to annotate problems.
 
     ```javascript
-    class Calculator {
+    class Calculator extends Abacus {
       constructor() {
+        super();
+
         // FIXME: shouldn't use a global here
         total = 0;
       }
@@ -1224,8 +1282,10 @@
   - [17.5](#17.5) <a name='17.5'></a> Use `// TODO:` to annotate solutions to problems.
 
     ```javascript
-    class Calculator {
+    class Calculator extends Abacus {
       constructor() {
+        super();
+
         // TODO: total should be configurable by an options param
         this.total = 0;
       }
@@ -1340,7 +1400,7 @@
     })(this);↵
     ```
 
-  - [18.5](#18.5) <a name='18.5'></a> Use indentation when making long method chains. Use a leading dot, which
+  - [18.6](#18.6) <a name='18.6'></a> Use indentation when making long method chains. Use a leading dot, which
     emphasizes that the line is a method call, not a new statement.
 
     ```javascript
@@ -1380,7 +1440,7 @@
         .call(tron.led);
     ```
 
-  - [18.6](#18.6) <a name='18.6'></a> Leave a blank line after blocks and before the next statement.
+  - [18.7](#18.7) <a name='18.7'></a> Leave a blank line after blocks and before the next statement.
 
     ```javascript
     // bad
@@ -1415,6 +1475,26 @@
     };
 
     return obj;
+
+    // bad
+    const arr = [
+      function foo() {
+      },
+      function bar() {
+      },
+    ];
+    return arr;
+
+    // good
+    const arr = [
+      function foo() {
+      },
+
+      function bar() {
+      },
+    ];
+
+    return arr;
     ```
 
 
@@ -1816,7 +1896,7 @@
 
     ```javascript
     // good
-    $(this).trigger('listingUpdated', { listingId : listing.id });
+    $(this).trigger('listingUpdated', { listingId: listing.id });
 
     ...
 
@@ -1838,6 +1918,9 @@
 
     // good
     const $sidebar = $('.sidebar');
+
+    // good
+    const $sidebarBtn = $('.sidebar-btn');
     ```
 
   - [25.2](#25.2) <a name='25.2'></a> Cache jQuery lookups.
@@ -1954,7 +2037,7 @@
 
 **Read This**
 
-  - [Annotated ECMAScript 5.1](http://es5.github.com/)
+  - [Standard ECMA-262](http://www.ecma-international.org/ecma-262/6.0/index.html)
 
 **Tools**
 
@@ -2001,6 +2084,7 @@
   - [Third Party JavaScript](http://manning.com/vinegar/) - Ben Vinegar and Anton Kovalyov
   - [Effective JavaScript: 68 Specific Ways to Harness the Power of JavaScript](http://amzn.com/0321812182) - David Herman
   - [Eloquent JavaScript](http://eloquentjavascript.net/) - Marijn Haverbeke
+  - [You Don't Know JS: ES6 & Beyond](http://shop.oreilly.com/product/0636920033769.do) - Kyle Simpson
 
 **Blogs**
 
@@ -2033,6 +2117,8 @@
   - **Apartmint**: [apartmint/javascript](https://github.com/apartmint/javascript)
   - **Avalara**: [avalara/javascript](https://github.com/avalara/javascript)
   - **Billabong**: [billabong/javascript](https://github.com/billabong/javascript)
+  - **Blendle**: [blendle/javascript](https://github.com/blendle/javascript)
+  - **ComparaOnline**: [comparaonline/javascript](https://github.com/comparaonline/javascript)
   - **Compass Learning**: [compasslearning/javascript-style-guide](https://github.com/compasslearning/javascript-style-guide)
   - **DailyMotion**: [dailymotion/javascript](https://github.com/dailymotion/javascript)
   - **Digitpaint** [digitpaint/javascript](https://github.com/digitpaint/javascript)
@@ -2045,6 +2131,7 @@
   - **GoodData**: [gooddata/gdc-js-style](https://github.com/gooddata/gdc-js-style)
   - **Grooveshark**: [grooveshark/javascript](https://github.com/grooveshark/javascript)
   - **How About We**: [howaboutwe/javascript](https://github.com/howaboutwe/javascript)
+  - **Huballin**: [huballin/javascript](https://github.com/huballin/javascript)
   - **InfoJobs**: [InfoJobs/JavaScript-Style-Guide](https://github.com/InfoJobs/JavaScript-Style-Guide)
   - **Intent Media**: [intentmedia/javascript](https://github.com/intentmedia/javascript)
   - **Jam3**: [Jam3/Javascript-Code-Conventions](https://github.com/Jam3/Javascript-Code-Conventions)
@@ -2052,6 +2139,7 @@
   - **Kinetica Solutions**: [kinetica/javascript](https://github.com/kinetica/javascript)
   - **Mighty Spring**: [mightyspring/javascript](https://github.com/mightyspring/javascript)
   - **MinnPost**: [MinnPost/javascript](https://github.com/MinnPost/javascript)
+  - **MitocGroup**: [MitocGroup/javascript](https://github.com/MitocGroup/javascript)
   - **ModCloth**: [modcloth/javascript](https://github.com/modcloth/javascript)
   - **Money Advice Service**: [moneyadviceservice/javascript](https://github.com/moneyadviceservice/javascript)
   - **Muber**: [muber/javascript](https://github.com/muber/javascript)
@@ -2066,6 +2154,7 @@
   - **Ripple**: [ripple/javascript-style-guide](https://github.com/ripple/javascript-style-guide)
   - **SeekingAlpha**: [seekingalpha/javascript-style-guide](https://github.com/seekingalpha/javascript-style-guide)
   - **Shutterfly**: [shutterfly/javascript](https://github.com/shutterfly/javascript)
+  - **Springload**: [springload/javascript](https://github.com/springload/javascript)
   - **StudentSphere**: [studentsphere/javascript](https://github.com/studentsphere/javascript)
   - **Target**: [target/javascript](https://github.com/target/javascript)
   - **TheLadders**: [TheLadders/javascript](https://github.com/TheLadders/javascript)
@@ -2135,5 +2224,9 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 **[⬆ back to top](#table-of-contents)**
+
+## Amendments
+
+We encourage you to fork this guide and change the rules to fit your team's style guide. Below, you may list some amendments to the style guide. This allows you to periodically update your style guide without having to deal with merge conflicts.
 
 # };
